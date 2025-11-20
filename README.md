@@ -7,7 +7,7 @@ A Flask web application for managing the Arlington Physicians' Center database.
 ### Clone and Setup
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/APC_WEB.git
+git clone https://github.com/Juldiaz1/APC_WEB.git
 cd APC_WEB
 
 # Install dependencies

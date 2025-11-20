@@ -1,282 +1,268 @@
-from flask import Flask, render_template, request, jsonify
+# app.py
+from flask import Flask, render_template, request, flash
 import mysql.connector
-from mysql.connector import Error
 from config import DB_CONFIG
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'
 
 def get_db_connection():
-    """Create and return database connection"""
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
-        return connection
-    except Error as e:
-        print(f"Error connecting to MySQL: {e}")
+        conn = mysql.connector.connect(**DB_CONFIG)
+        return conn
+    except mysql.connector.Error as e:
+        flash(f"Database connection error: {e}")
         return None
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/execute_operation', methods=['POST'])
-def execute_operation():
-    operation = request.form.get('operation')
-    result = ""
+# Q1: Hospital Expansion Operations
+@app.route('/q1', methods=['GET', 'POST'])
+def q1_hospital_expansion():
+    results = []
+    sql_queries = []
     
-    connection = get_db_connection()
-    if not connection:
-        return jsonify({'error': 'Database connection failed'})
-    
-    try:
-        cursor = connection.cursor()
-        
-        if operation == 'q1':
-            result = execute_hospital_expansion(cursor, connection)
-        
-        elif operation == 'q2':
-            result = get_patient_insurance_details(cursor)
-        
-        elif operation == 'q3':
-            result = update_consultation(cursor, connection)
-        
-        elif operation == 'q4':
-            result = delete_hospital_location(cursor, connection)
-        
-        elif operation == 'qv1':
-            result = get_hospitals_in_cityville(cursor)
-        
-        elif operation == 'qv2':
-            result = get_patients_over_30(cursor)
-        
-        elif operation == 'qv3':
-            result = get_physician_most_specialties(cursor)
-        
-        elif operation == 'qv4':
-            result = get_average_patient_age(cursor)
-        
-        else:
-            result = "Invalid operation"
+    if request.method == 'POST':
+        try:
+            conn = get_db_connection()
+            if conn:
+                cursor = conn.cursor()
+                
+                # Q1 Queries
+                queries = [
+                    # Add new specialty
+                    "INSERT INTO Speciality (SName) VALUES ('Pediatrics')",
+                    
+                    # Add new physician
+                    "INSERT INTO Physician (PId, PFName, PMInit, PLName, HId) VALUES (601, 'Emily', 'C', 'White', 1)",
+                    
+                    # Link physician to specialty
+                    "INSERT INTO Physician_Speciality (PId, SId) VALUES (601, (SELECT SId FROM Speciality WHERE SName = 'Pediatrics'))",
+                    
+                    # Add new patient
+                    "INSERT INTO Patient (PSSN, PFName, PLName, PDoB, PGender, HId) VALUES ('22233445566', 'Timmy', 'Jones', '2020-01-15', 'M', 1)",
+                    
+                    # Assign patient to physician
+                    "INSERT INTO Consultation (PSSN, PId, CDateTime) VALUES ('22233445566', 601, NOW())"
+                ]
+                
+                for query in queries:
+                    sql_queries.append(query)
+                    cursor.execute(query)
+                
+                conn.commit()
+                results.append("Q1 Operations completed successfully!")
+                cursor.close()
+                conn.close()
             
-    except Error as e:
-        result = f"Error: {e}"
-    finally:
-        cursor.close()
-        connection.close()
+        except Exception as e:
+            results.append(f"Error: {str(e)}")
     
-    return jsonify({'result': result})
+    return render_template('q1.html', results=results, sql_queries=sql_queries)
 
-def execute_hospital_expansion(cursor, connection):
-    """Q1: Hospital Expansion Operations"""
-    try:
-        # Add new specialty
-        cursor.execute("INSERT INTO Speciality (SName, SDescription) VALUES ('Pediatrics', 'Child healthcare services')")
-        
-        # Add new physician
-        cursor.execute("INSERT INTO Physician (PId, PFName, PMInit, PLName, HId) VALUES (601, 'Emily', 'C', 'White', 1)")
-        
-        # Link physician to specialty
-        cursor.execute("INSERT INTO Physician_Speciality (PId, SId) VALUES (601, (SELECT SId FROM Speciality WHERE SName = 'Pediatrics'))")
-        
-        # Add new patient
-        cursor.execute("INSERT INTO Patient (PSSN, PFName, PLName, PDoB, PGender) VALUES ('22233445566', 'Timmy', 'Jones', '2020-01-15', 'Male')")
-        
-        # Assign patient to physician
-        cursor.execute("INSERT INTO Consultation (PSSN, PId, ConsultationDate) VALUES ('22233445566', 601, CURDATE())")
-        
-        connection.commit()
-        return "Q1: Hospital expansion completed successfully!\n- Pediatrics specialty added\n- Dr. Emily White hired\n- Timmy Jones admitted and assigned to Dr. White"
+# Q2: Patient Insurance Details
+@app.route('/q2')
+def q2_patient_insurance():
+    patients = []
+    sql_query = """
+    SELECT 
+        CONCAT(P.PFName, ' ', P.PLName) AS PatientName,
+        IC.ICName AS CoveragePolicy,
+        IC.ICType AS CoverageType,
+        P.PDoB AS DateOfBirth
+    FROM Patient P
+    JOIN Insurance_Coverage IC ON P.PSSN = IC.PSSN
+    """
     
-    except Error as e:
-        connection.rollback()
-        return f"Error in Q1: {e}"
-
-def get_patient_insurance_details(cursor):
-    """Q2: Patient Insurance Details"""
     try:
-        query = """
-        SELECT 
-            CONCAT(P.PFName, ' ', P.PLName) AS PatientName,
-            I.IName AS InsuranceName,
-            I.IType AS InsuranceType,
-            P.PDoB AS DateOfBirth
-        FROM Patient P
-        JOIN Insurance I ON P.PSSN = I.PSSN
-        """
-        cursor.execute(query)
-        results = cursor.fetchall()
-        
-        if not results:
-            return "No insurance data found"
-        
-        output = "Q2: Patient Insurance Details:\n"
-        output += "-" * 80 + "\n"
-        output += f"{'Patient Name':<20} {'Insurance Name':<20} {'Type':<15} {'Date of Birth':<15}\n"
-        output += "-" * 80 + "\n"
-        
-        for row in results:
-            output += f"{row[0]:<20} {row[1]:<20} {row[2]:<15} {str(row[3]):<15}\n"
-        
-        return output
+        conn = get_db_connection()
+        if conn:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute(sql_query)
+            patients = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            
+    except Exception as e:
+        flash(f"Error: {str(e)}")
     
-    except Error as e:
-        return f"Error in Q2: {e}"
+    return render_template('q2.html', patients=patients, sql_query=sql_query)
 
-def update_consultation(cursor, connection):
-    """Q3: Update Consultation Follow-up"""
-    try:
-        query = """
-        UPDATE Consultation 
-        SET FollowUpDate = '2025-08-01 11:00:00'
-        WHERE PSSN = '111-22-3333' 
-        AND ConsultationDate = '2025-08-01' 
-        AND ConsultationTime = '06:00:00'
-        """
-        cursor.execute(query)
-        connection.commit()
-        
-        if cursor.rowcount > 0:
-            return "Q3: Consultation follow-up updated successfully for John Smith"
-        else:
-            return "Q3: No matching consultation found to update"
+# Q3: Update Consultation Follow-up
+@app.route('/q3', methods=['GET', 'POST'])
+def q3_update_consultation():
+    result = None
+    sql_query = """
+    UPDATE Consultation 
+    SET CFollowUpDateTime = '2025-08-01 11:00:00'
+    WHERE PSSN = '111-22-3333' 
+    AND CDateTime = '2025-08-01 06:00:00'
+    """
     
-    except Error as e:
-        connection.rollback()
-        return f"Error in Q3: {e}"
-
-def delete_hospital_location(cursor, connection):
-    """Q4: Delete Hospital Location"""
-    try:
-        query = """
-        DELETE FROM Hospital_Location 
-        WHERE HId = 301 
-        AND HLocation = '1000 Hospital Dr, Cityville'
-        """
-        cursor.execute(query)
-        connection.commit()
-        
-        if cursor.rowcount > 0:
-            return "Q4: Hospital location deleted successfully"
-        else:
-            return "Q4: No matching hospital location found to delete"
+    if request.method == 'POST':
+        try:
+            conn = get_db_connection()
+            if conn:
+                cursor = conn.cursor()
+                cursor.execute(sql_query)
+                conn.commit()
+                result = "Consultation follow-up time updated successfully!"
+                cursor.close()
+                conn.close()
+            
+        except Exception as e:
+            result = f"Error: {str(e)}"
     
-    except Error as e:
-        connection.rollback()
-        return f"Error in Q4: {e}"
+    return render_template('q3.html', result=result, sql_query=sql_query)
 
-def get_hospitals_in_cityville(cursor):
-    """QV1: Hospitals in Cityville"""
-    try:
-        create_view_query = """
-        CREATE OR REPLACE VIEW HospitalLocationSummary AS
-        SELECT 
-            H.HName AS HospitalName,
-            GROUP_CONCAT(HL.HLocation SEPARATOR ', ') AS Locations
-        FROM Hospital H
-        LEFT JOIN Hospital_Location HL ON H.HId = HL.HId
-        GROUP BY H.HId, H.HName
-        """
-        cursor.execute(create_view_query)
-        
-        query = """
+# Q4: Remove Hospital Location
+@app.route('/q4', methods=['GET', 'POST'])
+def q4_remove_location():
+    result = None
+    sql_query = """
+    DELETE FROM Hospital_Location 
+    WHERE HLAddress = '1000 Hospital Dr, Cityville' 
+    AND HId = 301
+    """
+    
+    if request.method == 'POST':
+        try:
+            conn = get_db_connection()
+            if conn:
+                cursor = conn.cursor()
+                cursor.execute(sql_query)
+                conn.commit()
+                result = "Hospital location removed successfully!"
+                cursor.close()
+                conn.close()
+            
+        except Exception as e:
+            result = f"Error: {str(e)}"
+    
+    return render_template('q4.html', result=result, sql_query=sql_query)
+
+# Create Views
+@app.route('/create_views', methods=['GET', 'POST'])
+def create_views():
+    results = []
+    view_queries = []
+    
+    if request.method == 'POST':
+        try:
+            conn = get_db_connection()
+            if conn:
+                cursor = conn.cursor()
+                
+                # View creation queries
+                views = {
+                    'HospitalLocationSummary': """
+                    CREATE OR REPLACE VIEW HospitalLocationSummary AS
+                    SELECT 
+                        H.HName AS HospitalName,
+                        GROUP_CONCAT(HL.HLAddress SEPARATOR ', ') AS Locations
+                    FROM Hospital H
+                    LEFT JOIN Hospital_Location HL ON H.HId = HL.HId
+                    GROUP BY H.HId, H.HName
+                    """,
+                    
+                    'PatientAgeDistribution': """
+                    CREATE OR REPLACE VIEW PatientAgeDistribution AS
+                    SELECT 
+                        CONCAT(PFName, ' ', PLName) AS PatientName,
+                        TIMESTAMPDIFF(YEAR, PDoB, CURDATE()) AS Age
+                    FROM Patient
+                    """,
+                    
+                    'PhysicianSpecialityCount': """
+                    CREATE OR REPLACE VIEW PhysicianSpecialityCount AS
+                    SELECT 
+                        CONCAT(P.PFName, ' ', P.PLName) AS PhysicianName,
+                        COUNT(PS.SId) AS SpecialityCount
+                    FROM Physician P
+                    LEFT JOIN Physician_Speciality PS ON P.PId = PS.PId
+                    GROUP BY P.PId, P.PFName, P.PLName
+                    """
+                }
+                
+                for view_name, query in views.items():
+                    view_queries.append(f"-- {view_name} View\n{query}")
+                    cursor.execute(query)
+                    results.append(f"{view_name} view created successfully!")
+                
+                conn.commit()
+                cursor.close()
+                conn.close()
+            
+        except Exception as e:
+            results.append(f"Error: {str(e)}")
+    
+    return render_template('create_views.html', results=results, view_queries=view_queries)
+
+# View Queries
+@app.route('/view_queries')
+def view_queries():
+    queries_results = {}
+    view_sql_queries = {
+        'qv1': """
         SELECT HospitalName, Locations 
         FROM HospitalLocationSummary 
         WHERE Locations LIKE '%Cityville%'
-        """
-        cursor.execute(query)
-        results = cursor.fetchall()
-        
-        output = "QV1: Hospitals in Cityville:\n"
-        output += "-" * 50 + "\n"
-        
-        for row in results:
-            output += f"Hospital: {row[0]}\nLocations: {row[1]}\n"
-        
-        return output if results else "No hospitals found in Cityville"
-    
-    except Error as e:
-        return f"Error in QV1: {e}"
-
-def get_patients_over_30(cursor):
-    """QV2: Patients Over 30 Years Old"""
-    try:
-        create_view_query = """
-        CREATE OR REPLACE VIEW PatientAgeDistribution AS
-        SELECT 
-            CONCAT(PFName, ' ', PLName) AS PatientName,
-            TIMESTAMPDIFF(YEAR, PDoB, CURDATE()) AS Age
-        FROM Patient
-        """
-        cursor.execute(create_view_query)
-        
-        query = "SELECT PatientName, Age FROM PatientAgeDistribution WHERE Age > 30"
-        cursor.execute(query)
-        results = cursor.fetchall()
-        
-        output = "QV2: Patients Over 30 Years Old:\n"
-        output += "-" * 40 + "\n"
-        
-        for row in results:
-            output += f"Patient: {row[0]}, Age: {row[1]}\n"
-        
-        return output if results else "No patients over 30 years old found"
-    
-    except Error as e:
-        return f"Error in QV2: {e}"
-
-def get_physician_most_specialties(cursor):
-    """QV3: Physician with Most Specialties"""
-    try:
-        create_view_query = """
-        CREATE OR REPLACE VIEW PhysicianSpecialityCount AS
-        SELECT 
-            CONCAT(P.PFName, ' ', P.PLName) AS PhysicianName,
-            COUNT(PS.SId) AS SpecialityCount
-        FROM Physician P
-        LEFT JOIN Physician_Speciality PS ON P.PId = PS.PId
-        GROUP BY P.PId, P.PFName, P.PLName
-        """
-        cursor.execute(create_view_query)
-        
-        query = """
+        """,
+        'qv2': """
+        SELECT PatientName 
+        FROM PatientAgeDistribution 
+        WHERE Age > 30
+        """,
+        'qv3': """
         SELECT PhysicianName, SpecialityCount 
         FROM PhysicianSpecialityCount 
         ORDER BY SpecialityCount DESC 
         LIMIT 1
+        """,
+        'qv4': """
+        SELECT AVG(Age) AS AverageAge 
+        FROM PatientAgeDistribution
         """
-        cursor.execute(query)
-        result = cursor.fetchone()
-        
-        if result:
-            return f"QV3: Physician with most specialties:\n{result[0]} with {result[1]} specialties"
-        else:
-            return "QV3: No physician data found"
+    }
     
-    except Error as e:
-        return f"Error in QV3: {e}"
-
-def get_average_patient_age(cursor):
-    """QV4: Average Patient Age"""
     try:
-        create_view_query = """
-        CREATE OR REPLACE VIEW PatientAgeDistribution AS
-        SELECT 
-            CONCAT(PFName, ' ', PLName) AS PatientName,
-            TIMESTAMPDIFF(YEAR, PDoB, CURDATE()) AS Age
-        FROM Patient
-        """
-        cursor.execute(create_view_query)
-        
-        query = "SELECT AVG(Age) FROM PatientAgeDistribution"
-        cursor.execute(query)
-        result = cursor.fetchone()
-        
-        if result[0]:
-            return f"QV4: Average patient age: {result[0]:.2f} years"
-        else:
-            return "QV4: No patient age data found"
+        conn = get_db_connection()
+        if conn:
+            cursor = conn.cursor(dictionary=True)
+            
+            for query_name, sql_query in view_sql_queries.items():
+                cursor.execute(sql_query)
+                queries_results[query_name] = {
+                    'data': cursor.fetchall(),
+                    'sql': sql_query
+                }
+            
+            cursor.close()
+            conn.close()
+            
+    except Exception as e:
+        flash(f"Error: {str(e)}")
     
-    except Error as e:
-        return f"Error in QV4: {e}"
+    return render_template('view_queries.html', results=queries_results)
+
+# Database Connection Test
+@app.route('/test_connection')
+def test_connection():
+    try:
+        conn = get_db_connection()
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT DATABASE()")
+            db_name = cursor.fetchone()[0]
+            cursor.close()
+            conn.close()
+            return f"✅ Database connection successful! Connected to: {db_name}"
+        else:
+            return "❌ Database connection failed!"
+    except Exception as e:
+        return f"❌ Database connection error: {str(e)}"
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True)

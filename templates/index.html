@@ -3,104 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APC Database Interface</title>
+    <title>APC Database Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Arlington Physicians' Center Database</h1>
-        <p class="subtitle">Host: 127.0.0.1 | Database: apc_database</p>
-        
-        <!-- Q1: Hospital Expansion -->
-        <div class="operation">
-            <h2>Q1: Hospital Expansion - General Hospital</h2>
-            <form method="POST" action="/execute_operation">
-                <input type="hidden" name="operation" value="q1">
-                <button type="submit">Execute Hospital Expansion</button>
-            </form>
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
         </div>
 
-        <!-- Q2: Patient Insurance Details -->
-        <div class="operation">
-            <h2>Q2: Patient Insurance Details</h2>
-            <form method="POST" action="/execute_operation">
-                <input type="hidden" name="operation" value="q2">
-                <button type="submit">Show Patient Insurance Details</button>
-            </form>
-        </div>
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-database"></i>
+                <span>APC DataHub</span>
+            </div>
+            <div class="hero">
+                <img src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&h=300&fit=crop" alt="Code" class="hero-img">
+                <h1>Database Command Center</h1>
+                <p>Manage your APC data with style</p>
+            </div>
+        </header>
 
-        <!-- Q3: Update Consultation -->
-        <div class="operation">
-            <h2>Q3: Update Consultation Follow-up</h2>
-            <form method="POST" action="/execute_operation">
-                <input type="hidden" name="operation" value="q3">
-                <button type="submit">Update John Smith's Consultation</button>
-            </form>
-        </div>
+        <div class="nav-grid">
+            <div class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-user-injured"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop" alt="Patients" class="card-img">
+                <h3>Patient Records</h3>
+                <p>Manage hospital patients</p>
+                <div class="card-stats">
+                    <span><i class="fas fa-users"></i> 124 Patients</span>
+                </div>
+            </div>
 
-        <!-- Q4: Delete Hospital Location -->
-        <div class="operation">
-            <h2>Q4: Delete Hospital Location</h2>
-            <form method="POST" action="/execute_operation">
-                <input type="hidden" name="operation" value="q4">
-                <button type="submit">Delete Hospital Location</button>
-            </form>
-        </div>
+            <div class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=200&fit=crop" alt="Doctors" class="card-img">
+                <h3>Doctors Portal</h3>
+                <p>Medical staff database</p>
+                <div class="card-stats">
+                    <span><i class="fas fa-stethoscope"></i> 45 Doctors</span>
+                </div>
+            </div>
 
-        <!-- View Operations -->
-        <div class="operation">
-            <h2>View Operations</h2>
-            <div class="view-buttons">
-                <form method="POST" action="/execute_operation">
-                    <input type="hidden" name="operation" value="qv1">
-                    <button type="submit">QV1: Hospitals in Cityville</button>
-                </form>
-                <form method="POST" action="/execute_operation">
-                    <input type="hidden" name="operation" value="qv2">
-                    <button type="submit">QV2: Patients Over 30</button>
-                </form>
-                <form method="POST" action="/execute_operation">
-                    <input type="hidden" name="operation" value="qv3">
-                    <button type="submit">QV3: Physician with Most Specialties</button>
-                </form>
-                <form method="POST" action="/execute_operation">
-                    <input type="hidden" name="operation" value="qv4">
-                    <button type="submit">QV4: Average Patient Age</button>
-                </form>
+            <div class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-procedures"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=300&h=200&fit=crop" alt="Rooms" class="card-img">
+                <h3>Room Management</h3>
+                <p>Hospital room allocation</p>
+                <div class="card-stats">
+                    <span><i class="fas fa-bed"></i> 89 Rooms</span>
+                </div>
+            </div>
+
+            <div class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-file-medical"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop" alt="Records" class="card-img">
+                <h3>Medical Records</h3>
+                <p>Patient history & reports</p>
+                <div class="card-stats">
+                    <span><i class="fas fa-clipboard-list"></i> 567 Records</span>
+                </div>
+            </div>
+
+            <div class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop" alt="Analytics" class="card-img">
+                <h3>Data Analytics</h3>
+                <p>Hospital insights & stats</p>
+                <div class="card-stats">
+                    <span><i class="fas fa-chart-line"></i> Live Data</span>
+                </div>
+            </div>
+
+            <div class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=300&h=200&fit=crop" alt="SQL" class="card-img">
+                <h3>SQL Playground</h3>
+                <p>Run database queries</p>
+                <div class="card-stats">
+                    <span><i class="fas fa-terminal"></i> Query DB</span>
+                </div>
             </div>
         </div>
 
-        <!-- Display Results -->
-        <div id="result" class="result" style="display: none;">
-            <h3>Operation Result:</h3>
-            <pre id="result-content"></pre>
+        <div class="quick-actions">
+            <h2>Quick Actions</h2>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="pulseButton(this)">
+                    <i class="fas fa-plus"></i>
+                    Add New Record
+                </button>
+                <button class="action-btn" onclick="pulseButton(this)">
+                    <i class="fas fa-search"></i>
+                    Search Database
+                </button>
+                <button class="action-btn" onclick="pulseButton(this)">
+                    <i class="fas fa-download"></i>
+                    Export Data
+                </button>
+                <button class="action-btn" onclick="pulseButton(this)">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </button>
+            </div>
         </div>
+
+        <footer class="footer">
+            <div class="db-status">
+                <span class="status-indicator">
+                    <i class="fas fa-circle"></i>
+                    Database Connected
+                </span>
+                <span class="server-info">
+                    <i class="fas fa-server"></i>
+                    APC MySQL Server
+                </span>
+            </div>
+        </footer>
     </div>
 
     <script>
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
+        function animateCard(card) {
+            card.style.transform = 'scale(0.95) rotate(2deg)';
+            card.style.boxShadow = '0 25px 50px rgba(0,0,0,0.3)';
+            
+            setTimeout(() => {
+                card.style.transform = 'scale(1) rotate(0deg)';
+                card.style.boxShadow = '0 15px 35px rgba(0,0,0,0.1)';
+            }, 200);
+        }
+
+        function pulseButton(btn) {
+            btn.style.transform = 'scale(0.95)';
+            btn.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+                setTimeout(() => {
+                    btn.style.background = 'rgba(255,255,255,0.2)';
+                }, 300);
+            }, 150);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.nav-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            const shapes = document.querySelectorAll('.shape');
+            shapes.forEach(shape => {
+                shape.style.animationDelay = `${Math.random() * 2}s`;
+            });
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            const cards = document.querySelectorAll('.nav-card');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
                 
-                const formData = new FormData(this);
-                
-                fetch('/execute_operation', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const resultDiv = document.getElementById('result');
-                    const resultContent = document.getElementById('result-content');
-                    
-                    resultContent.textContent = data.result;
-                    resultDiv.style.display = 'block';
-                    
-                    resultDiv.scrollIntoView({ behavior: 'smooth' });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
             });
         });
     </script>

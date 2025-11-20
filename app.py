@@ -258,11 +258,11 @@ def test_connection():
             db_name = cursor.fetchone()[0]
             cursor.close()
             conn.close()
-            return f"✅ Database connection successful! Connected to: {db_name}"
+            return f" Database connection successful! Connected to: {db_name}"
         else:
-            return "❌ Database connection failed!"
+            return " Database connection failed!"
     except Exception as e:
-        return f"❌ Database connection error: {str(e)}"
+        return f" Database connection error: {str(e)}"
 
 if __name__ == '__main__':
     app.run(debug=True)

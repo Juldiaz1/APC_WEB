@@ -31,11 +31,7 @@ def create_views():
         CREATE OR REPLACE VIEW PatientAgeDistribution AS
         SELECT 
             P.PName AS PatientName,
-            CASE 
-                WHEN DATE_FORMAT(CURDATE(), '%m-%d') < DATE_FORMAT(P.DateOfBirth, '%m-%d') 
-                THEN TIMESTAMPDIFF(YEAR, P.DateOfBirth, CURDATE()) - 1
-                ELSE TIMESTAMPDIFF(YEAR, P.DateOfBirth, CURDATE())
-            END AS Age
+            TIMESTAMPDIFF(YEAR, P.DateOfBirth, CURDATE()) AS Age
         FROM Patient P;
     """)
 
@@ -245,9 +241,10 @@ def qv1():
 @app.route("/qv2")
 def qv2():
     query = """
-        SELECT *
+        SELECT PatientName, Age
         FROM PatientAgeDistribution
-        WHERE Age > 30;
+        WHERE Age > 30
+        ORDER BY Age DESC;
     """
     
     db = get_db()
@@ -299,7 +296,7 @@ def qv3():
 @app.route("/qv4")
 def qv4():
     query = """
-        SELECT AVG(Age) AS AverageAge
+        SELECT ROUND(AVG(Age), 2) AS AverageAge
         FROM PatientAgeDistribution;
     """
     
@@ -322,60 +319,19 @@ def qv4():
             "query": query
         })
 
-@app.route("/debug_patient_ages")
-def debug_patient_ages():
+@app.route("/debug_ages")
+def debug_ages():
     query = """
         SELECT 
             PName,
             DateOfBirth,
-            TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) AS AgeYears,
-            DATEDIFF(CURDATE(), DateOfBirth) AS AgeDays,
-            FLOOR(DATEDIFF(CURDATE(), DateOfBirth) / 365.25) AS AgeAccurate
-        FROM Patient
-        ORDER BY DateOfBirth;
-    """
-    
-    db = get_db()
-    cur = db.cursor(dictionary=True)
-
-    try:
-        cur.execute(query)
-        results = cur.fetchall()
-        
-        # Calculate average using different methods
-        avg_years = sum(row['AgeYears'] for row in results) / len(results) if results else 0
-        avg_accurate = sum(row['AgeAccurate'] for row in results) / len(results) if results else 0
-        
-        return jsonify({
-            "status": "success",
-            "data": results,
-            "averages": {
-                "method1_timestampdiff": round(avg_years, 2),
-                "method2_accurate": round(avg_accurate, 2)
-            },
-            "count": len(results)
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"Error: {e}"
-        })
-
-@app.route("/debug_patient_details")
-def debug_patient_details():
-    query = """
-        SELECT 
-            PName,
-            DateOfBirth,
-            CURDATE() AS Today,
-            TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) AS SimpleAge,
+            TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) AS Age,
             CASE 
-                WHEN DATE_FORMAT(CURDATE(), '%m-%d') < DATE_FORMAT(DateOfBirth, '%m-%d') 
-                THEN TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) - 1
-                ELSE TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE())
-            END AS AccurateAge
+                WHEN TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) > 30 THEN 'Over 30'
+                ELSE '30 or Under'
+            END AS Status
         FROM Patient
-        ORDER BY DateOfBirth;
+        ORDER BY Age DESC;
     """
     
     db = get_db()
@@ -385,45 +341,17 @@ def debug_patient_details():
         cur.execute(query)
         results = cur.fetchall()
         
-        avg_simple = sum(row['SimpleAge'] for row in results) / len(results) if results else 0
-        avg_accurate = sum(row['AccurateAge'] for row in results) / len(results) if results else 0
+        over_30_count = sum(1 for row in results if row['Age'] > 30)
+        total_count = len(results)
         
         return jsonify({
             "status": "success",
             "data": results,
-            "averages": {
-                "simple_age": round(avg_simple, 2),
-                "accurate_age": round(avg_accurate, 2)
+            "summary": {
+                "total_patients": total_count,
+                "over_30_count": over_30_count,
+                "under_30_count": total_count - over_30_count
             },
-            "count": len(results)
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"Error: {e}"
-        })
-
-@app.route("/debug_specialties")
-def debug_specialties():
-    query = """
-        SELECT 
-            CONCAT(Ph.FName, ' ', Ph.LName) AS FullName,
-            PS.SName AS Specialty,
-            COUNT(PS.SName) OVER (PARTITION BY Ph.PId) AS NumSpecialities
-        FROM Physician Ph
-        LEFT JOIN PHYSICIAN_SPECIALITY PS ON Ph.PId = PS.PId
-        ORDER BY NumSpecialities DESC;
-    """
-    
-    db = get_db()
-    cur = db.cursor(dictionary=True)
-
-    try:
-        cur.execute(query)
-        results = cur.fetchall()
-        return jsonify({
-            "status": "success",
-            "data": results,
             "count": len(results)
         })
     except Exception as e:

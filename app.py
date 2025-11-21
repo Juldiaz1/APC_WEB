@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, jsonify
 import mysql.connector
 
@@ -69,7 +68,7 @@ def q3_update_consultation():
 def q4_remove_location():
     return render_template("q4.html")
 
-@app.route("/create_views")
+@app.route("/create_views_page")
 def create_views_page():
     return render_template("create_views.html")
 
@@ -104,7 +103,7 @@ def q1():
         "INSERT INTO Speciality (SName) VALUES ('Pediatrics');",
         "INSERT INTO Physician (PId, FName, LName, MInitial, HId) VALUES (601, 'Emily', 'White', 'C', 1);",
         "INSERT INTO PHYSICIAN_SPECIALITY (PId, SName) VALUES (601, 'Pediatrics');",
-        "INSERT INTO PATIENT (PSSN, PName, Sex, Address, DateOfBirth, PId, PoId) VALUES ('22233445566', 'Timmy Jones', 'M', 'Unknown', '2020-01-15', 601, NULL);"
+        "INSERT INTO PATIENT (PSSN, PName, Sex, Address, DateOfBirth, PId, PoId) VALUES ('22233445566', 'Timmy Jones', 'M', 'Unknown', '2025-01-15', 601, NULL);"
     ]
 
     try:
@@ -321,8 +320,12 @@ def qv4():
         })
 
 # Create views when app starts
-with app.app_context():
-    create_views()
+try:
+    with app.app_context():
+        create_views()
+    print("Database views created successfully!")
+except Exception as e:
+    print(f"Database connection failed, but app will still run: {e}")
 
 if __name__ == "__main__":
     app.run(debug=True)

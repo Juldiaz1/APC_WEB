@@ -1,6 +1,6 @@
 **# APC Database Web Interface
 
-A Flask web application for managing the Arlington Physicians' Center database.
+A Flask web application for managing the A Physicians' Center database.
 
 ## Quick Start
 

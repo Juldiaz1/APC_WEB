@@ -1,16 +1,516 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APC Database Hub - Phase 3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block content %}
-<h1>APC Database - Phase 3 Web Interface</h1>
-<p>Welcome to the Arlington Physicians' Center database management system for Phase 3.</p>
-<p>Use the navigation above to perform the required operations:</p>
-<ul>
-    <li><strong>Q1:</strong> Hospital Expansion Operations</li>
-    <li><strong>Q2:</strong> Patient Insurance Details</li>
-    <li><strong>Q3:</strong> Update Consultation Follow-up</li>
-    <li><strong>Q4:</strong> Remove Hospital Location</li>
-    <li><strong>Create Views:</strong> Create required database views</li>
-    <li><strong>View Queries:</strong> Execute view-based queries</li>
-    <li><strong>Database Status:</strong> Check database connection and tables</li>
-</ul>
-{% endblock %}
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape-1 {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .shape-3 {
+            width: 100px;
+            height: 100px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .logo i {
+            color: #ff6b6b;
+        }
+
+        .hero {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .hero-img {
+            width: 100%;
+            max-width: 400px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .nav-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+        }
+
+        .nav-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .card-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            color: #ff6b6b;
+            z-index: 2;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            filter: brightness(0.7);
+        }
+
+        .nav-card-content {
+            padding: 25px;
+        }
+
+        .nav-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .nav-card p {
+            opacity: 0.8;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-stats span {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .quick-actions {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .quick-actions h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .db-status {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .status-indicator, .server-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .status-indicator i {
+            color: #2ecc71;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .phase-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero h1 {
+                font-size: 2em;
+            }
+            
+            .logo {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+
+        <header class="header">
+            <div class="phase-badge">Phase 3</div>
+            <div class="logo">
+                <i class="fas fa-database"></i>
+                <span>APC DataHub</span>
+            </div>
+            <div class="hero">
+                <img src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&h=300&fit=crop" alt="Code" class="hero-img">
+                <h1>Database Command Center</h1>
+                <p>Phase 3 - Complete APC Database Management System</p>
+            </div>
+        </header>
+
+        <div class="nav-grid">
+            <a href="{{ url_for('q1_hospital_expansion') }}" class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&h=200&fit=crop" alt="Hospital Expansion" class="card-img">
+                <div class="nav-card-content">
+                    <h3>Hospital Expansion</h3>
+                    <p>Add new specialties, physicians, and patients for General Hospital expansion</p>
+                    <div class="card-stats">
+                        <span><i class="fas fa-tasks"></i> Q1 Operations</span>
+                        <span><i class="fas fa-play"></i> Execute</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ url_for('q2_patient_insurance') }}" class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=200&fit=crop" alt="Insurance" class="card-img">
+                <div class="nav-card-content">
+                    <h3>Patient Insurance</h3>
+                    <p>View comprehensive patient insurance details and coverage policies</p>
+                    <div class="card-stats">
+                        <span><i class="fas fa-users"></i> All Patients</span>
+                        <span><i class="fas fa-eye"></i> View Data</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ url_for('q3_update_consultation') }}" class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=200&fit=crop" alt="Consultation" class="card-img">
+                <div class="nav-card-content">
+                    <h3>Update Consultation</h3>
+                    <p>Modify follow-up dates and times for patient consultations</p>
+                    <div class="card-stats">
+                        <span><i class="fas fa-clock"></i> Time Updates</span>
+                        <span><i class="fas fa-edit"></i> Modify</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ url_for('q4_remove_location') }}" class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=400&h=200&fit=crop" alt="Location" class="card-img">
+                <div class="nav-card-content">
+                    <h3>Remove Location</h3>
+                    <p>Delete hospital location records from the database</p>
+                    <div class="card-stats">
+                        <span><i class="fas fa-trash"></i> Safe Deletion</span>
+                        <span><i class="fas fa-database"></i> SQL Operation</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ url_for('create_views') }}" class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop" alt="Analytics" class="card-img">
+                <div class="nav-card-content">
+                    <h3>Create Views</h3>
+                    <p>Generate advanced database views for analytics and reporting</p>
+                    <div class="card-stats">
+                        <span><i class="fas fa-table"></i> 3 Views</span>
+                        <span><i class="fas fa-plus"></i> Create</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ url_for('view_queries') }}" class="nav-card" onclick="animateCard(this)">
+                <div class="card-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop" alt="Queries" class="card-img">
+                <div class="nav-card-content">
+                    <h3>View Queries</h3>
+                    <p>Execute analytical queries on database views (QV1-QV4)</p>
+                    <div class="card-stats">
+                        <span><i class="fas fa-chart-line"></i> 4 Queries</span>
+                        <span><i class="fas fa-play"></i> Run All</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="quick-actions">
+            <h2>System Tools</h2>
+            <div class="action-buttons">
+                <a href="{{ url_for('database_status') }}" class="action-btn" onclick="pulseButton(this)">
+                    <i class="fas fa-server"></i>
+                    Database Status
+                </a>
+                <a href="{{ url_for('test_connection') }}" class="action-btn" onclick="pulseButton(this)">
+                    <i class="fas fa-plug"></i>
+                    Test Connection
+                </a>
+                <a href="/" class="action-btn" onclick="pulseButton(this)">
+                    <i class="fas fa-home"></i>
+                    Home Dashboard
+                </a>
+                <button class="action-btn" onclick="pulseButton(this); showNotification()">
+                    <i class="fas fa-bell"></i>
+                    Notifications
+                </button>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="db-status">
+                <span class="status-indicator">
+                    <i class="fas fa-circle"></i>
+                    APC Database Connected
+                </span>
+                <span class="server-info">
+                    <i class="fas fa-server"></i>
+                    MySQL Server - Phase 3 Ready
+                </span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        function animateCard(card) {
+            card.style.transform = 'scale(0.95) rotate(2deg)';
+            card.style.boxShadow = '0 25px 50px rgba(0,0,0,0.3)';
+            
+            setTimeout(() => {
+                card.style.transform = 'scale(1) rotate(0deg)';
+                card.style.boxShadow = '0 15px 35px rgba(0,0,0,0.1)';
+            }, 200);
+        }
+
+        function pulseButton(btn) {
+            btn.style.transform = 'scale(0.95)';
+            btn.style.background = 'linear-gradient(45deg, #ff6b6b, #feca57)';
+            
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+                setTimeout(() => {
+                    btn.style.background = 'rgba(255,255,255,0.2)';
+                }, 300);
+            }, 150);
+        }
+
+        function showNotification() {
+            alert('System Status: All operations running smoothly!');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.nav-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            const shapes = document.querySelectorAll('.shape');
+            shapes.forEach(shape => {
+                shape.style.animationDelay = `${Math.random() * 2}s`;
+            });
+        });
+
+        // Mouse move effects
+        document.addEventListener('mousemove', function(e) {
+            const cards = document.querySelectorAll('.nav-card');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+    </script>
+</body>
+</html>

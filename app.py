@@ -31,7 +31,11 @@ def create_views():
         CREATE OR REPLACE VIEW PatientAgeDistribution AS
         SELECT 
             P.PName AS PatientName,
-            TIMESTAMPDIFF(YEAR, P.DateOfBirth, CURDATE()) AS Age
+            CASE 
+                WHEN DATE_FORMAT(CURDATE(), '%m-%d') < DATE_FORMAT(P.DateOfBirth, '%m-%d') 
+                THEN TIMESTAMPDIFF(YEAR, P.DateOfBirth, CURDATE()) - 1
+                ELSE TIMESTAMPDIFF(YEAR, P.DateOfBirth, CURDATE())
+            END AS Age
         FROM Patient P;
     """)
 
@@ -317,6 +321,48 @@ def qv4():
             "status": "error",
             "message": f"Error: {e}",
             "query": query
+        })
+
+@app.route("/debug_patient_ages")
+def debug_patient_ages():
+    query = """
+        SELECT 
+            PName,
+            DateOfBirth,
+            TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) AS AgeYears,
+            CASE 
+                WHEN DATE_FORMAT(CURDATE(), '%m-%d') < DATE_FORMAT(DateOfBirth, '%m-%d') 
+                THEN TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) - 1
+                ELSE TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE())
+            END AS AgeAccurate
+        FROM Patient
+        ORDER BY DateOfBirth;
+    """
+    
+    db = get_db()
+    cur = db.cursor(dictionary=True)
+
+    try:
+        cur.execute(query)
+        results = cur.fetchall()
+        
+        # Calculate average using different methods
+        avg_years = sum(row['AgeYears'] for row in results) / len(results) if results else 0
+        avg_accurate = sum(row['AgeAccurate'] for row in results) / len(results) if results else 0
+        
+        return jsonify({
+            "status": "success",
+            "data": results,
+            "averages": {
+                "method1_timestampdiff": round(avg_years, 2),
+                "method2_accurate": round(avg_accurate, 2)
+            },
+            "count": len(results)
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Error: {e}"
         })
 
 # Create views when app starts

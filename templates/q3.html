@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q3 - Update Consultation | APC DataHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .logo a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .description {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .operation-details {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .execute-btn {
+            background: linear-gradient(45deg, #f39c12, #f1c40f);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .execute-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(243, 156, 18, 0.3);
+        }
+
+        .sql-query {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #3498db;
+        }
+
+        .result-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .error-box {
+            background: rgba(231, 76, 60, 0.2);
+            border-left: 4px solid #e74c3c;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <a href="/">
+                    <i class="fas fa-database"></i>
+                    APC DataHub
+                </a>
+            </div>
+            <h1>Q3: Update Consultation</h1>
+            <p class="description">Modify follow-up appointment for John Smith's consultation</p>
+        </div>
+
+        <div class="content-card">
+            <h2><i class="fas fa-calendar-alt"></i> Consultation Update Details</h2>
+            
+            <div class="operation-details">
+                <div class="detail-item">
+                    <strong>Patient:</strong>
+                    <span>John Smith (PSSN: 111-22-3333)</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Original Consultation:</strong>
+                    <span>2025-08-01 at 06:00:00</span>
+                </div>
+                <div class="detail-item">
+                    <strong>New Follow-up:</strong>
+                    <span style="color: #f1c40f;">2025-08-01 at 11:00:00</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Time Change:</strong>
+                    <span>+5 hours</span>
+                </div>
+            </div>
+
+            <div class="sql-query">
+                UPDATE CONSULTATION
+                SET FDate = '2025-08-01', FTime= '11:00:00'
+                WHERE PSSN = '111-22-3333'
+                  AND CDate = '2025-08-01' AND CTime= '06:00:00';
+            </div>
+
+            <button class="execute-btn" onclick="executeQ3()">
+                <i class="fas fa-edit"></i> Update Consultation Follow-up
+            </button>
+
+            <div class="result-section" id="resultSection" style="display: none;">
+                <h3><i class="fas fa-result"></i> Update Results</h3>
+                <div id="resultBox" class="result-box"></div>
+            </div>
+        </div>
+
+        <a href="/" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <script>
+        async function executeQ3() {
+            const executeBtn = document.querySelector('.execute-btn');
+            const resultSection = document.getElementById('resultSection');
+            const resultBox = document.getElementById('resultBox');
+
+            executeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            executeBtn.disabled = true;
+
+            try {
+                const response = await fetch('/q3', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    resultBox.className = 'result-box';
+                    resultBox.innerHTML = `
+                        <h4 style="color: #2ecc71;"><i class="fas fa-check-circle"></i> SUCCESS</h4>
+                        <p>${data.message}</p>
+                        <p>Follow-up time has been updated to 11:00:00</p>
+                    `;
+                } else {
+                    resultBox.className = 'result-box error-box';
+                    resultBox.innerHTML = `
+                        <h4 style="color: #e74c3c;"><i class="fas fa-exclamation-circle"></i> ERROR</h4>
+                        <p>${data.message}</p>
+                    `;
+                }
+
+            } catch (error) {
+                resultBox.className = 'result-box error-box';
+                resultBox.innerHTML = `
+                    <h4 style="color: #e74c3c;"><i class="fas fa-exclamation-circle"></i> NETWORK ERROR</h4>
+                    <p>Failed to connect to server: ${error.message}</p>
+                `;
+            } finally {
+                resultSection.style.display = 'block';
+                executeBtn.innerHTML = '<i class="fas fa-edit"></i> Update Consultation Follow-up';
+                executeBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -107,7 +107,7 @@ def q1():
         "INSERT INTO Speciality (SName) VALUES ('Pediatrics');",
         "INSERT INTO Physician (PId, FName, LName, MInitial, HId) VALUES (601, 'Emily', 'White', 'C', 1);",
         "INSERT INTO PHYSICIAN_SPECIALITY (PId, SName) VALUES (601, 'Pediatrics');",
-        "INSERT INTO PATIENT (PSSN, PName, Sex, Address, DateOfBirth, PId, PoId) VALUES ('22233445566', 'Timmy Jones', 'M', 'Unknown', '2025-01-15', 601, NULL);"
+        "INSERT INTO PATIENT (PSSN, PName, Sex, Address, DateOfBirth, PId, PoId) VALUES ('22233445566', 'Timmy Jones', 'M', 'Unknown', '2015-01-15', 601, NULL);"
     ]
 
     try:
@@ -272,10 +272,9 @@ def qv2():
 @app.route("/qv3")
 def qv3():
     query = """
-        SELECT FullName
-        FROM PhysicianSpecialityCount
-        ORDER BY NumSpecialities DESC
-        LIMIT 1;
+        SELECT FullName, NumSpecialities
+        FROM PhysicianSpecialityCount 
+        WHERE NumSpecialities = (SELECT MAX(NumSpecialities) FROM PhysicianSpecialityCount);
     """
     
     db = get_db()
@@ -330,11 +329,8 @@ def debug_patient_ages():
             PName,
             DateOfBirth,
             TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) AS AgeYears,
-            CASE 
-                WHEN DATE_FORMAT(CURDATE(), '%m-%d') < DATE_FORMAT(DateOfBirth, '%m-%d') 
-                THEN TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) - 1
-                ELSE TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE())
-            END AS AgeAccurate
+            DATEDIFF(CURDATE(), DateOfBirth) AS AgeDays,
+            FLOOR(DATEDIFF(CURDATE(), DateOfBirth) / 365.25) AS AgeAccurate
         FROM Patient
         ORDER BY DateOfBirth;
     """
@@ -357,6 +353,77 @@ def debug_patient_ages():
                 "method1_timestampdiff": round(avg_years, 2),
                 "method2_accurate": round(avg_accurate, 2)
             },
+            "count": len(results)
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Error: {e}"
+        })
+
+@app.route("/debug_patient_details")
+def debug_patient_details():
+    query = """
+        SELECT 
+            PName,
+            DateOfBirth,
+            CURDATE() AS Today,
+            TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) AS SimpleAge,
+            CASE 
+                WHEN DATE_FORMAT(CURDATE(), '%m-%d') < DATE_FORMAT(DateOfBirth, '%m-%d') 
+                THEN TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) - 1
+                ELSE TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE())
+            END AS AccurateAge
+        FROM Patient
+        ORDER BY DateOfBirth;
+    """
+    
+    db = get_db()
+    cur = db.cursor(dictionary=True)
+
+    try:
+        cur.execute(query)
+        results = cur.fetchall()
+        
+        avg_simple = sum(row['SimpleAge'] for row in results) / len(results) if results else 0
+        avg_accurate = sum(row['AccurateAge'] for row in results) / len(results) if results else 0
+        
+        return jsonify({
+            "status": "success",
+            "data": results,
+            "averages": {
+                "simple_age": round(avg_simple, 2),
+                "accurate_age": round(avg_accurate, 2)
+            },
+            "count": len(results)
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Error: {e}"
+        })
+
+@app.route("/debug_specialties")
+def debug_specialties():
+    query = """
+        SELECT 
+            CONCAT(Ph.FName, ' ', Ph.LName) AS FullName,
+            PS.SName AS Specialty,
+            COUNT(PS.SName) OVER (PARTITION BY Ph.PId) AS NumSpecialities
+        FROM Physician Ph
+        LEFT JOIN PHYSICIAN_SPECIALITY PS ON Ph.PId = PS.PId
+        ORDER BY NumSpecialities DESC;
+    """
+    
+    db = get_db()
+    cur = db.cursor(dictionary=True)
+
+    try:
+        cur.execute(query)
+        results = cur.fetchall()
+        return jsonify({
+            "status": "success",
+            "data": results,
             "count": len(results)
         })
     except Exception as e:

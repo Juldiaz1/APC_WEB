@@ -91,40 +91,27 @@ def test_connection():
     except Exception as e:
         return f"ERROR: {str(e)}"
 
-@app.route("/q1", methods=['GET', 'POST'])
+@app.route("/q1", methods=['POST'])
 def q1():
-    if request.method == 'GET':
-        return render_template("q1.html")
-    
     db = get_db()
     cur = db.cursor()
 
-    queries = [
-        "INSERT INTO Speciality (SName) VALUES ('Pediatrics');",
-        "INSERT INTO Physician (PId, FName, LName, MInitial, HId) VALUES (601, 'Emily', 'White', 'C', 1);",
-        "INSERT INTO PHYSICIAN_SPECIALITY (PId, SName) VALUES (601, 'Pediatrics');",
-        "INSERT INTO PATIENT (PSSN, PName, Sex, Address, DateOfBirth, PId, PoId) VALUES ('22233445566', 'Timmy Jones', 'M', 'Unknown', '2015-01-15', 601, NULL);"
-    ]
-
     try:
-        for query in queries:
-            cur.execute(query)
+        cur.execute("INSERT INTO Speciality (SName) VALUES ('Pediatrics');")
+        cur.execute("INSERT INTO Physician (PId, FName, LName, MInitial, HId) VALUES (601, 'Emily', 'White', 'C', 1);")
+        cur.execute("INSERT INTO PHYSICIAN_SPECIALITY (PId, SName) VALUES (601, 'Pediatrics');")
+        cur.execute("INSERT INTO PATIENT (PSSN, PName, Sex, Address, DateOfBirth, PId, PoId) VALUES ('22233445566', 'Timmy Jones', 'M', 'Unknown', '2015-01-15', 601, NULL);")
         
         db.commit()
-        return jsonify({
-            "status": "success", 
-            "message": "Q1 Completed Successfully",
-            "queries": queries
-        })
+        return jsonify({"status": "success", "message": "Q1 Completed Successfully"})
     except Exception as e:
-        return jsonify({
-            "status": "error", 
-            "message": f"Error: {e}",
-            "queries": queries
-        })
+        return jsonify({"status": "error", "message": f"Error: {e}"})
 
 @app.route("/q2", methods=['GET'])
 def q2():
+    db = get_db()
+    cur = db.cursor(dictionary=True)
+
     query = """
         SELECT P.PName AS PatientName,
         CP.PoName AS PolicyName,
@@ -134,239 +121,88 @@ def q2():
         LEFT JOIN CoveragePolicy CP ON P.PoId = CP.PoId;
     """
 
-    db = get_db()
-    cur = db.cursor(dictionary=True)
-    
-    try:
-        cur.execute(query)
-        results = cur.fetchall()
-        return jsonify({
-            "status": "success",
-            "data": results,
-            "query": query,
-            "count": len(results)
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"Error: {e}",
-            "query": query
-        })
+    cur.execute(query)
+    return jsonify(cur.fetchall())
 
-@app.route("/q3", methods=['GET', 'POST'])
+@app.route("/q3", methods=['POST'])
 def q3():
-    if request.method == 'GET':
-        return render_template("q3.html")
-    
-    query = """
+    db = get_db()
+    cur = db.cursor()
+
+    cur.execute("""
         UPDATE CONSULTATION
         SET FDate = '2025-08-01', FTime= '11:00:00'
         WHERE PSSN = '111-22-3333'
           AND CDate = '2025-08-01' AND CTime= '06:00:00';
-    """
+    """)
 
+    db.commit()
+    return jsonify({"status": "success", "message": "Consultation Updated Successfully"})
+
+@app.route("/q4", methods=['POST'])
+def q4():
     db = get_db()
     cur = db.cursor()
 
-    try:
-        cur.execute(query)
-        db.commit()
-        return jsonify({
-            "status": "success", 
-            "message": "Consultation Updated Successfully",
-            "query": query
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error", 
-            "message": f"Error: {e}",
-            "query": query
-        })
-
-@app.route("/q4", methods=['GET', 'POST'])
-def q4():
-    if request.method == 'GET':
-        return render_template("q4.html")
-    
-    query = """
+    cur.execute("""
         DELETE FROM Hospital_Location
         WHERE HId = 301 AND Location = '1000 Hospital Dr, Cityville';
-    """
+    """)
 
-    db = get_db()
-    cur = db.cursor()
-
-    try:
-        cur.execute(query)
-        db.commit()
-        return jsonify({
-            "status": "success", 
-            "message": "Location removed successfully",
-            "query": query
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error", 
-            "message": f"Error: {e}",
-            "query": query
-        })
+    db.commit()
+    return jsonify({"status": "success", "message": "Location removed successfully"})
 
 @app.route("/qv1")
 def qv1():
-    query = """
+    db = get_db()
+    cur = db.cursor(dictionary=True)
+
+    cur.execute("""
         SELECT *
         FROM HospitalLocationSummary
         WHERE Locations LIKE '%Cityville%';
-    """
-    
-    db = get_db()
-    cur = db.cursor(dictionary=True)
+    """)
 
-    try:
-        cur.execute(query)
-        results = cur.fetchall()
-        return jsonify({
-            "status": "success",
-            "data": results,
-            "query": query,
-            "count": len(results)
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"Error: {e}",
-            "query": query
-        })
+    return jsonify(cur.fetchall())
 
 @app.route("/qv2")
 def qv2():
-    query = """
-        SELECT PatientName, Age
-        FROM PatientAgeDistribution
-        WHERE Age > 30
-        ORDER BY Age DESC;
-    """
-    
     db = get_db()
     cur = db.cursor(dictionary=True)
 
-    try:
-        cur.execute(query)
-        results = cur.fetchall()
-        return jsonify({
-            "status": "success",
-            "data": results,
-            "query": query,
-            "count": len(results)
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"Error: {e}",
-            "query": query
-        })
+    cur.execute("""
+        SELECT PatientName, Age
+        FROM PatientAgeDistribution
+        WHERE Age > 30;
+    """)
+
+    return jsonify(cur.fetchall())
 
 @app.route("/qv3")
 def qv3():
-    query = """
+    db = get_db()
+    cur = db.cursor(dictionary=True)
+
+    cur.execute("""
         SELECT FullName, NumSpecialities
         FROM PhysicianSpecialityCount 
         WHERE NumSpecialities = (SELECT MAX(NumSpecialities) FROM PhysicianSpecialityCount);
-    """
-    
-    db = get_db()
-    cur = db.cursor(dictionary=True)
+    """)
 
-    try:
-        cur.execute(query)
-        results = cur.fetchall()
-        return jsonify({
-            "status": "success",
-            "data": results,
-            "query": query,
-            "count": len(results)
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"Error: {e}",
-            "query": query
-        })
+    return jsonify(cur.fetchall())
 
 @app.route("/qv4")
 def qv4():
-    query = """
+    db = get_db()
+    cur = db.cursor(dictionary=True)
+
+    cur.execute("""
         SELECT ROUND(AVG(Age), 2) AS AverageAge
         FROM PatientAgeDistribution;
-    """
-    
-    db = get_db()
-    cur = db.cursor(dictionary=True)
+    """)
 
-    try:
-        cur.execute(query)
-        results = cur.fetchall()
-        return jsonify({
-            "status": "success",
-            "data": results,
-            "query": query,
-            "count": len(results)
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"Error: {e}",
-            "query": query
-        })
-
-@app.route("/debug_ages")
-def debug_ages():
-    query = """
-        SELECT 
-            PName,
-            DateOfBirth,
-            TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) AS Age,
-            CASE 
-                WHEN TIMESTAMPDIFF(YEAR, DateOfBirth, CURDATE()) > 30 THEN 'Over 30'
-                ELSE '30 or Under'
-            END AS Status
-        FROM Patient
-        ORDER BY Age DESC;
-    """
-    
-    db = get_db()
-    cur = db.cursor(dictionary=True)
-
-    try:
-        cur.execute(query)
-        results = cur.fetchall()
-        
-        over_30_count = sum(1 for row in results if row['Age'] > 30)
-        total_count = len(results)
-        
-        return jsonify({
-            "status": "success",
-            "data": results,
-            "summary": {
-                "total_patients": total_count,
-                "over_30_count": over_30_count,
-                "under_30_count": total_count - over_30_count
-            },
-            "count": len(results)
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"Error: {e}"
-        })
-
-# Create views when app starts
-try:
-    with app.app_context():
-        create_views()
-    print("Database views created successfully!")
-except Exception as e:
-    print(f"Database connection failed, but app will still run: {e}")
+    return jsonify(cur.fetchall())
 
 if __name__ == "__main__":
+    create_views()
     app.run(debug=True)

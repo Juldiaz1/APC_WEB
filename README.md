@@ -20,7 +20,15 @@ A comprehensive web interface for managing the Arlington Physicians' Center (APC
 - **Fonts**: Google Fonts (Poppins)
 
 ## Installation & Setup
-
+    python --version
+    
+    pip --version
+    
+    python -m venv venv
+                venv\Scripts\activate  # window 
+                source venv/bin/activate #MacOs/Linux 
+    pip install Flask
+    
 ### Prerequisites
 - Python 3.8+
 - MySQL Server

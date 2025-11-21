@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify, flash
+
+from flask import Flask, render_template, request, jsonify
 import mysql.connector
 
 app = Flask(__name__)
@@ -11,10 +12,6 @@ def get_db():
         password="",
         database="apc_database"
     )
-
-@app.route("/")
-def home():
-    return render_template("index.html")
 
 def create_views():
     db = get_db()
@@ -51,6 +48,10 @@ def create_views():
     """)
 
     db.commit()
+
+@app.route("/")
+def home():
+    return render_template("index.html")
 
 @app.route("/q1_hospital_expansion")
 def q1_hospital_expansion():
@@ -319,8 +320,8 @@ def qv4():
             "query": query
         })
 
-@app.before_first_request
-def initialize():
+# Create views when app starts
+with app.app_context():
     create_views()
 
 if __name__ == "__main__":

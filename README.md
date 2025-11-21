@@ -66,9 +66,9 @@ python app.py
 ### Step 5: Access the Application
 Open your web browser and navigate to:
 ```
-http://localhost:5000
+http://localhost:5000  #LocalHost may be diffrent fepending on your host 
 ```
-your local host may be diffrent 
+
 
 ## Project Structure
 ```

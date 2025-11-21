@@ -48,7 +48,7 @@ pip install flask mysql-connector-python
 ### Step 3: Database Configuration
 Update the database connection in `app.py`:
 
-```python  you may change on app.py  local host to your host and database to yoyur database personal name 
+```python  
 def get_db():
     return mysql.connector.connect(
         host="localhost",       #change your localHost to your personal host 

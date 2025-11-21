@@ -100,7 +100,7 @@ def q1():
         cur.execute("INSERT INTO Speciality (SName) VALUES ('Pediatrics');")
         cur.execute("INSERT INTO Physician (PId, FName, LName, MInitial, HId) VALUES (601, 'Emily', 'White', 'C', 1);")
         cur.execute("INSERT INTO PHYSICIAN_SPECIALITY (PId, SName) VALUES (601, 'Pediatrics');")
-        cur.execute("INSERT INTO PATIENT (PSSN, PName, Sex, Address, DateOfBirth, PId, PoId) VALUES ('22233445566', 'Timmy Jones', 'M', 'Unknown', '2015-01-15', 601, NULL);")
+        cur.execute("INSERT INTO PATIENT (PSSN, PName, Sex, Address, DateOfBirth, PId, PoId) VALUES ('22233445566', 'Timmy Jones', 'M', 'Unknown', '2020-01-15', 601, NULL);")
         
         db.commit()
         return jsonify({"status": "success", "message": "Q1 Completed Successfully"})
@@ -158,7 +158,7 @@ def qv1():
     cur = db.cursor(dictionary=True)
 
     cur.execute("""
-        SELECT *
+        SELECT HospitalName, Locations
         FROM HospitalLocationSummary
         WHERE Locations LIKE '%Cityville%';
     """)
@@ -171,7 +171,7 @@ def qv2():
     cur = db.cursor(dictionary=True)
 
     cur.execute("""
-        SELECT PatientName, Age
+        SELECT PatientName
         FROM PatientAgeDistribution
         WHERE Age > 30;
     """)
@@ -184,9 +184,10 @@ def qv3():
     cur = db.cursor(dictionary=True)
 
     cur.execute("""
-        SELECT FullName, NumSpecialities
-        FROM PhysicianSpecialityCount 
-        WHERE NumSpecialities = (SELECT MAX(NumSpecialities) FROM PhysicianSpecialityCount);
+        SELECT FullName
+        FROM PhysicianSpecialityCount
+        ORDER BY NumSpecialities DESC
+        LIMIT 1;
     """)
 
     return jsonify(cur.fetchall())
@@ -197,7 +198,7 @@ def qv4():
     cur = db.cursor(dictionary=True)
 
     cur.execute("""
-        SELECT ROUND(AVG(Age), 2) AS AverageAge
+        SELECT AVG(Age) AS AverageAge
         FROM PatientAgeDistribution;
     """)
 

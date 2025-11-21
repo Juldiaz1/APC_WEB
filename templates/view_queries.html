@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Queries | APC DataHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; overflow-x: hidden; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .logo { display: flex; align-items: center; justify-content: center; gap: 15px; font-size: 2em; font-weight: 700; margin-bottom: 20px; }
+        .logo a { color: white; text-decoration: none; }
+        .content-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 20px 40px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        h1 { font-size: 2.5em; margin-bottom: 10px; background: linear-gradient(45deg, #ff6b6b, #feca57); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .description { font-size: 1.2em; opacity: 0.9; margin-bottom: 30px; }
+        .query-card { background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #3498db; }
+        .execute-btn { background: linear-gradient(45deg, #3498db, #2980b9); border: none; border-radius: 10px; padding: 10px 20px; color: white; font-family: 'Poppins', sans-serif; cursor: pointer; transition: all 0.3s ease; }
+        .execute-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3); }
+        .sql-query { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; margin: 10px 0; font-family: 'Courier New', monospace; font-size: 0.9em; }
+        .result-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #2ecc71; }
+        .error-box { background: rgba(231, 76, 60, 0.2); border-left: 4px solid #e74c3c; }
+        .back-btn { background: rgba(255, 255, 255, 0.2); border: none; border-radius: 10px; padding: 10px 20px; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s ease; }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.3); }
+        .data-table { width: 100%; border-collapse: collapse; margin: 10px 0; background: rgba(255, 255, 255, 0.1); border-radius: 5px; overflow: hidden; }
+        .data-table th { background: rgba(52, 152, 219, 0.8); padding: 12px; text-align: left; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo"><a href="/"><i class="fas fa-database"></i>APC DataHub</a></div>
+            <h1>View-Based Queries</h1>
+            <p class="description">Execute analytical queries on database views (QV1-QV4)</p>
+        </div>
+
+        <div class="content-card">
+            <!-- QV1 -->
+            <div class="query-card">
+                <h3><i class="fas fa-map-marker-alt"></i> QV1: Hospitals in Cityville</h3>
+                <p>Retrieve hospitals that have a location in 'Cityville'</p>
+                <div class="sql-query">SELECT * FROM HospitalLocationSummary WHERE Locations LIKE '%Cityville%';</div>
+                <button class="execute-btn" onclick="executeQuery('qv1', this)">Run QV1</button>
+                <div class="result-section" id="resultQV1"></div>
+            </div>
+
+            <!-- QV2 -->
+            <div class="query-card">
+                <h3><i class="fas fa-user-clock"></i> QV2: Patients Over 30 Years</h3>
+                <p>Retrieve names of patients who are over 30 years old</p>
+                <div class="sql-query">SELECT PatientName FROM PatientAgeDistribution WHERE Age > 30;</div>
+                <button class="execute-btn" onclick="executeQuery('qv2', this)">Run QV2</button>
+                <div class="result-section" id="resultQV2"></div>
+            </div>
+
+            <!-- QV3 -->
+            <div class="query-card">
+                <h3><i class="fas fa-trophy"></i> QV3: Physician with Most Specialties</h3>
+                <p>Find the physician with the highest number of specialties</p>
+                <div class="sql-query">SELECT FullName FROM PhysicianSpecialityCount ORDER BY NumSpecialities DESC LIMIT 1;</div>
+                <button class="execute-btn" onclick="executeQuery('qv3', this)">Run QV3</button>
+                <div class="result-section" id="resultQV3"></div>
+            </div>
+
+            <!-- QV4 -->
+            <div class="query-card">
+                <h3><i class="fas fa-calculator"></i> QV4: Average Patient Age</h3>
+                <p>Calculate the average age of all patients</p>
+                <div class="sql-query">SELECT AVG(Age) AS AverageAge FROM PatientAgeDistribution;</div>
+                <button class="execute-btn" onclick="executeQuery('qv4', this)">Run QV4</button>
+                <div class="result-section" id="resultQV4"></div>
+            </div>
+        </div>
+
+        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+
+    <script>
+        async function executeQuery(queryName, button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+            button.disabled = true;
+
+            const resultDiv = document.getElementById(`result${queryName.toUpperCase()}`);
+
+            try {
+                const response = await fetch(`/${queryName}`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    let resultHTML = `<div class="result-box"><h4><i class="fas fa-check-circle"></i> SUCCESS - ${data.count} records found</h4>`;
+                    
+                    if (data.data && data.data.length > 0) {
+                        const keys = Object.keys(data.data[0]);
+                        resultHTML += `<table class="data-table"><thead><tr>`;
+                        keys.forEach(key => {
+                            resultHTML += `<th>${key}</th>`;
+                        });
+                        resultHTML += `</tr></thead><tbody>`;
+                        
+                        data.data.forEach(row => {
+                            resultHTML += `<tr>`;
+                            keys.forEach(key => {
+                                resultHTML += `<td>${row[key] !== null ? row[key] : 'N/A'}</td>`;
+                            });
+                            resultHTML += `</tr>`;
+                        });
+                        resultHTML += `</tbody></table>`;
+                    } else {
+                        resultHTML += `<p>No data found</p>`;
+                    }
+                    resultHTML += `</div>`;
+                    resultDiv.innerHTML = resultHTML;
+                } else {
+                    resultDiv.innerHTML = `<div class="result-box error-box"><h4><i class="fas fa-exclamation-circle"></i> ERROR</h4><p>${data.message}</p></div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result-box error-box"><h4><i class="fas fa-exclamation-circle"></i> NETWORK ERROR</h4><p>${error.message}</p></div>`;
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

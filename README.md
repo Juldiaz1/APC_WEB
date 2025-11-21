@@ -19,31 +19,60 @@ A comprehensive web interface for managing the Arlington Physicians' Center (APC
 - **Icons**: Font Awesome
 - **Fonts**: Google Fonts (Poppins)
 
-## Installation & Setup
-    python --version
-    
-    pip --version
-    
-    python -m venv venv
-                venv\Scripts\activate  # window 
-                source venv/bin/activate #MacOs/Linux 
-    pip install Flask
+## Installation Setup 
+Check if everything is installed:
+
+```bash
+# Check Python version
+python --version
+# Should show: Python 3.8.x or higher
+
+# Check pip version
+pip --version
+# Should show pip with Python 3.8+
+
+# Check MySQL
+mysql --version
+# Should show MySQL version
+
+# Check Git
+git --version
+# Should show Git version
+```
+If anything is missing:
+
+· Python: Download from python.org
+· MySQL: Download from mysql.com or use XAMPP
+· Git: Download from git-scm.com
+
     
 ### Prerequisites
 - Python 3.8+
 - MySQL Server
-- Git
+- Git 
 
-### Step 1: Clone the Repository
+### Step 1 Clone Respository and activate Venv 
 ```bash
+# Clone the repository
 git clone https://github.com/Juldiaz1/APC_WEB.git
 cd APC_WEB
-```
 
-### Step 2: Install Dependencies
-```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
+```
+### Step 2: Install dependencies 
+``` bash
+# Install dependencies
 pip install flask mysql-connector-python
 ```
+
+
 
 ### Step 3: Database Configuration
 Update the database connection in `app.py`:
@@ -57,6 +86,16 @@ def get_db():
         database="apc_database"    # The name of your database here 
     )
 ```
+If In need to change DB name, run this command in your APC_WEB folder;
+``` cmd
+python -c "import re
+with open('app.py', 'r') as f:
+    content = f.read()
+content = re.sub(r'database=\"apc_database\"', 'database=\"your_db_name\"', content)
+with open('app.py', 'w') as f:
+    f.write(content)
+print('Database name changed successfully!')"
+```
 
 ### Step 4: Run the Application
 ```bash
@@ -67,6 +106,17 @@ python app.py
 Open your web browser and navigate to:
 ```
 http://localhost:5000  #LocalHost may be diffrent fepending on your host 
+```
+
+Quick fix commands:
+
+```bash
+# Reactivate virtual environment if needed
+venv\Scripts\activate  # Windows
+source venv/bin/activate  # macOS/Linux
+
+# Reinstall dependencies if needed
+pip install --force-reinstall flask mysql-connector-python
 ```
 
 

@@ -43,10 +43,10 @@ Update the database connection in `app.py`:
 ```python  you may change on app.py  local host to your host and database to yoyur database personal name 
 def get_db():
     return mysql.connector.connect(
-        host="localhost",     
+        host="localhost",       #change your localHost to your personal host 
         user="root",
         password="your_password",
-        database="apc_database"
+        database="apc_database"    # The name of your database here 
     )
 ```
 

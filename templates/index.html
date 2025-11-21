@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APC Database Hub - Phase 3</title>
+    <title>APC Database Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -145,6 +145,9 @@
             cursor: pointer;
             overflow: hidden;
             position: relative;
+            text-decoration: none;
+            color: white;
+            display: block;
         }
 
         .nav-card::before {
@@ -243,6 +246,7 @@
             justify-content: center;
             gap: 10px;
             backdrop-filter: blur(10px);
+            text-decoration: none;
         }
 
         .action-btn:hover {
@@ -295,7 +299,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .nav-grid {
                 grid-template-columns: 1fr;
@@ -333,7 +336,7 @@
         </header>
 
         <div class="nav-grid">
-            <a href="{{ url_for('q1_hospital_expansion') }}" class="nav-card" onclick="animateCard(this)">
+            <a href="/q1_hospital_expansion" class="nav-card">
                 <div class="card-icon">
                     <i class="fas fa-hospital"></i>
                 </div>
@@ -348,7 +351,7 @@
                 </div>
             </a>
 
-            <a href="{{ url_for('q2_patient_insurance') }}" class="nav-card" onclick="animateCard(this)">
+            <a href="/q2_patient_insurance" class="nav-card">
                 <div class="card-icon">
                     <i class="fas fa-file-invoice-dollar"></i>
                 </div>
@@ -363,7 +366,7 @@
                 </div>
             </a>
 
-            <a href="{{ url_for('q3_update_consultation') }}" class="nav-card" onclick="animateCard(this)">
+            <a href="/q3_update_consultation" class="nav-card">
                 <div class="card-icon">
                     <i class="fas fa-calendar-alt"></i>
                 </div>
@@ -378,7 +381,7 @@
                 </div>
             </a>
 
-            <a href="{{ url_for('q4_remove_location') }}" class="nav-card" onclick="animateCard(this)">
+            <a href="/q4_remove_location" class="nav-card">
                 <div class="card-icon">
                     <i class="fas fa-map-marker-alt"></i>
                 </div>
@@ -393,7 +396,7 @@
                 </div>
             </a>
 
-            <a href="{{ url_for('create_views') }}" class="nav-card" onclick="animateCard(this)">
+            <a href="/create_views_page" class="nav-card">
                 <div class="card-icon">
                     <i class="fas fa-chart-bar"></i>
                 </div>
@@ -408,7 +411,7 @@
                 </div>
             </a>
 
-            <a href="{{ url_for('view_queries') }}" class="nav-card" onclick="animateCard(this)">
+            <a href="/view_queries" class="nav-card">
                 <div class="card-icon">
                     <i class="fas fa-search"></i>
                 </div>
@@ -427,19 +430,19 @@
         <div class="quick-actions">
             <h2>System Tools</h2>
             <div class="action-buttons">
-                <a href="{{ url_for('database_status') }}" class="action-btn" onclick="pulseButton(this)">
+                <a href="/database_status" class="action-btn">
                     <i class="fas fa-server"></i>
                     Database Status
                 </a>
-                <a href="{{ url_for('test_connection') }}" class="action-btn" onclick="pulseButton(this)">
+                <a href="/test_connection" class="action-btn">
                     <i class="fas fa-plug"></i>
                     Test Connection
                 </a>
-                <a href="/" class="action-btn" onclick="pulseButton(this)">
+                <a href="/" class="action-btn">
                     <i class="fas fa-home"></i>
                     Home Dashboard
                 </a>
-                <button class="action-btn" onclick="pulseButton(this); showNotification()">
+                <button class="action-btn" onclick="showNotification()">
                     <i class="fas fa-bell"></i>
                     Notifications
                 </button>
@@ -499,7 +502,6 @@
             });
         });
 
-        // Mouse move effects
         document.addEventListener('mousemove', function(e) {
             const cards = document.querySelectorAll('.nav-card');
             cards.forEach(card => {

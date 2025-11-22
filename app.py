@@ -9,12 +9,40 @@ def get_db():
         host="127.0.0.1",
         user="root",
         password="",
-        database="apc_database"  
+        database="apc_database"
     )
 
 @app.route("/")
 def home():
     return render_template("index.html")
+
+@app.route("/q1_hospital_expansion")
+def q1_hospital_expansion():
+    return render_template("q1.html")
+
+@app.route("/q2_patient_insurance")
+def q2_patient_insurance():
+    return render_template("q2.html")
+
+@app.route("/q3_update_consultation")
+def q3_update_consultation():
+    return render_template("q3.html")
+
+@app.route("/q4_remove_location")
+def q4_remove_location():
+    return render_template("q4.html")
+
+@app.route("/create_views_page")
+def create_views_page():
+    return render_template("create_views.html")
+
+@app.route("/view_queries")
+def view_queries_page():
+    return render_template("view_queries.html")
+
+@app.route("/database_status")
+def database_status():
+    return render_template("database_status.html")
 
 def create_views():
     db = get_db()
@@ -52,7 +80,7 @@ def create_views():
 
     db.commit()
 
-@app.post("/q1")
+@app.route("/q1", methods=['POST'])
 def q1():
     db = get_db()
     cur = db.cursor()
@@ -68,7 +96,7 @@ def q1():
     except Exception as e:
         return jsonify({"status": "error", "message": f"Error: {e}"})
 
-@app.get("/q2")
+@app.route("/q2", methods=['GET'])
 def q2():
     db = get_db()
     cur = db.cursor(dictionary=True)
@@ -85,7 +113,7 @@ def q2():
     cur.execute(query)
     return jsonify(cur.fetchall())
 
-@app.post("/q3")
+@app.route("/q3", methods=['POST'])
 def q3():
     db = get_db()
     cur = db.cursor()
@@ -100,7 +128,7 @@ def q3():
     db.commit()
     return jsonify({"status": "success", "message": "Consultation Updated Successfully"})
 
-@app.post("/q4")
+@app.route("/q4", methods=['POST'])
 def q4():
     db = get_db()
     cur = db.cursor()
@@ -113,7 +141,7 @@ def q4():
     db.commit()
     return jsonify({"status": "success", "message": "Location removed successfully"})
 
-@app.get("/qv1")
+@app.route("/qv1")
 def qv1():
     db = get_db()
     cur = db.cursor(dictionary=True)
@@ -126,7 +154,7 @@ def qv1():
 
     return jsonify(cur.fetchall())
 
-@app.get("/qv2")
+@app.route("/qv2")
 def qv2():
     db = get_db()
     cur = db.cursor(dictionary=True)
@@ -139,7 +167,7 @@ def qv2():
 
     return jsonify(cur.fetchall())
 
-@app.get("/qv3")
+@app.route("/qv3")
 def qv3():
     db = get_db()
     cur = db.cursor(dictionary=True)
@@ -153,7 +181,7 @@ def qv3():
 
     return jsonify(cur.fetchall())
 
-@app.get("/qv4")
+@app.route("/qv4")
 def qv4():
     db = get_db()
     cur = db.cursor(dictionary=True)

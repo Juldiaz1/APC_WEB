@@ -6,11 +6,15 @@ app.secret_key = 'apc_secret_key_2025'
 
 def get_db():
     return mysql.connector.connect(
-        host="127.0.0.1",
+        host="localhost",
         user="root",
         password="",
-        database="apc_database"
+        database="apc_db"  
     )
+
+@app.route("/")
+def home():
+    return render_template("index.html")
 
 def create_views():
     db = get_db()
@@ -48,50 +52,7 @@ def create_views():
 
     db.commit()
 
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-@app.route("/q1_hospital_expansion")
-def q1_hospital_expansion():
-    return render_template("q1.html")
-
-@app.route("/q2_patient_insurance")
-def q2_patient_insurance():
-    return render_template("q2.html")
-
-@app.route("/q3_update_consultation")
-def q3_update_consultation():
-    return render_template("q3.html")
-
-@app.route("/q4_remove_location")
-def q4_remove_location():
-    return render_template("q4.html")
-
-@app.route("/create_views_page")
-def create_views_page():
-    return render_template("create_views.html")
-
-@app.route("/view_queries")
-def view_queries_page():
-    return render_template("view_queries.html")
-
-@app.route("/database_status")
-def database_status():
-    return render_template("database_status.html")
-
-@app.route("/test_connection")
-def test_connection():
-    try:
-        db = get_db()
-        cur = db.cursor()
-        cur.execute("SELECT DATABASE()")
-        db_name = cur.fetchone()[0]
-        return f"SUCCESS: Connected to database: {db_name}"
-    except Exception as e:
-        return f"ERROR: {str(e)}"
-
-@app.route("/q1", methods=['POST'])
+@app.post("/q1")
 def q1():
     db = get_db()
     cur = db.cursor()
@@ -107,7 +68,7 @@ def q1():
     except Exception as e:
         return jsonify({"status": "error", "message": f"Error: {e}"})
 
-@app.route("/q2", methods=['GET'])
+@app.get("/q2")
 def q2():
     db = get_db()
     cur = db.cursor(dictionary=True)
@@ -124,7 +85,7 @@ def q2():
     cur.execute(query)
     return jsonify(cur.fetchall())
 
-@app.route("/q3", methods=['POST'])
+@app.post("/q3")
 def q3():
     db = get_db()
     cur = db.cursor()
@@ -139,7 +100,7 @@ def q3():
     db.commit()
     return jsonify({"status": "success", "message": "Consultation Updated Successfully"})
 
-@app.route("/q4", methods=['POST'])
+@app.post("/q4")
 def q4():
     db = get_db()
     cur = db.cursor()
@@ -152,7 +113,7 @@ def q4():
     db.commit()
     return jsonify({"status": "success", "message": "Location removed successfully"})
 
-@app.route("/qv1")
+@app.get("/qv1")
 def qv1():
     db = get_db()
     cur = db.cursor(dictionary=True)
@@ -165,7 +126,7 @@ def qv1():
 
     return jsonify(cur.fetchall())
 
-@app.route("/qv2")
+@app.get("/qv2")
 def qv2():
     db = get_db()
     cur = db.cursor(dictionary=True)
@@ -178,7 +139,7 @@ def qv2():
 
     return jsonify(cur.fetchall())
 
-@app.route("/qv3")
+@app.get("/qv3")
 def qv3():
     db = get_db()
     cur = db.cursor(dictionary=True)
@@ -192,7 +153,7 @@ def qv3():
 
     return jsonify(cur.fetchall())
 
-@app.route("/qv4")
+@app.get("/qv4")
 def qv4():
     db = get_db()
     cur = db.cursor(dictionary=True)

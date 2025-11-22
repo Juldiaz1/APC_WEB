@@ -85,16 +85,29 @@ def q1():
     db = get_db()
     cur = db.cursor()
 
+    queries = [
+        "INSERT INTO Speciality (SName) VALUES ('Pediatrics');",
+        "INSERT INTO Physician (PId, FName, LName, MInitial, HId) VALUES (601, 'Emily', 'White', 'C', 1);",
+        "INSERT INTO PHYSICIAN_SPECIALITY (PId, SName) VALUES (601, 'Pediatrics');",
+        "INSERT INTO PATIENT (PSSN, PName, Sex, Address, DateOfBirth, PId, PoId) VALUES ('22233445566', 'Timmy Jones', 'M', 'Unknown', '2020-01-15', 601, NULL);"
+    ]
+
     try:
-        cur.execute("INSERT INTO Speciality (SName) VALUES ('Pediatrics');")
-        cur.execute("INSERT INTO Physician (PId, FName, LName, MInitial, HId) VALUES (601, 'Emily', 'White', 'C', 1);")
-        cur.execute("INSERT INTO PHYSICIAN_SPECIALITY (PId, SName) VALUES (601, 'Pediatrics');")
-        cur.execute("INSERT INTO PATIENT (PSSN, PName, Sex, Address, DateOfBirth, PId, PoId) VALUES ('22233445566', 'Timmy Jones', 'M', 'Unknown', '2020-01-15', 601, NULL);")
+        for query in queries:
+            cur.execute(query)
         
         db.commit()
-        return jsonify({"status": "success", "message": "Q1 Completed Successfully"})
+        return jsonify({
+            "status": "success", 
+            "message": "Q1 Completed Successfully",
+            "queries": queries
+        })
     except Exception as e:
-        return jsonify({"status": "error", "message": f"Error: {e}"})
+        return jsonify({
+            "status": "error", 
+            "message": f"Error: {e}",
+            "queries": queries
+        })
 
 @app.route("/q2", methods=['GET'])
 def q2():

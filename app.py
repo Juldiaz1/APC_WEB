@@ -44,6 +44,17 @@ def view_queries_page():
 def database_status():
     return render_template("database_status.html")
 
+@app.route("/test_connection")
+def test_connection():
+    try:
+        db = get_db()
+        cur = db.cursor()
+        cur.execute("SELECT DATABASE()")
+        db_name = cur.fetchone()[0]
+        return f"SUCCESS: Connected to database: {db_name}"
+    except Exception as e:
+        return f"ERROR: {str(e)}"
+
 def create_views():
     db = get_db()
     cur = db.cursor()

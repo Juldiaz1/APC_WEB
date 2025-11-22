@@ -6,10 +6,10 @@ app.secret_key = 'apc_secret_key_2025'
 
 def get_db():
     return mysql.connector.connect(
-        host="localhost",
+        host="127.0.0.1",
         user="root",
         password="",
-        database="apc_db"  
+        database="apc_database"  
     )
 
 @app.route("/")
